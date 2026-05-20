@@ -1,9 +1,55 @@
 flowchart LR
-  Server["src/server.ts Bun.serve"] --> ApiRouter["src/routes/api-router.ts"]
-  Server --> FrontRouter["src/routes/frontend-router.ts"]
-  ApiRouter --> Elysia["src/api/app.ts Elysia"]
-  Elysia --> Auth["auth module"]
-  Elysia --> User["user module"]
-  User --> SQLite["SQLite database"]
-  FrontRouter --> React["src/app React UI"]
-  React --> ApiRouter
+  classDef client fill:#fff7ed,stroke:#c2410c,color:#431407
+  classDef runtime fill:#eff6ff,stroke:#2563eb,color:#172554
+  classDef boundary fill:#f0f9ff,stroke:#0284c7,color:#082f49
+  classDef module fill:#ecfdf5,stroke:#059669,color:#064e3b
+  classDef data fill:#f8fafc,stroke:#475569,color:#0f172a
+  classDef concern fill:#fefce8,stroke:#a16207,color:#422006
+
+  browser["Browser<br/>HTML, React Router, fetch"]
+
+  subgraph bunRuntime["Bun runtime<br/>one deployable process"]
+    server["src/server.ts<br/>Bun.serve entrypoint"]
+    frontendRouter["src/routes/frontend-router.ts<br/>HTML routes and UI fallback"]
+    apiRouter["src/routes/api-router.ts<br/>delegates /api to Elysia"]
+    reactApp["src/app<br/>React pages and components"]
+    apiClient["src/app/services/api-client.ts<br/>only UI HTTP boundary"]
+
+    subgraph apiRuntime["src/api"]
+      apiApp["app.ts<br/>Elysia composition"]
+      openapi["OpenAPI plugin<br/>/api/openapi"]
+      errorHandler["shared error handler<br/>domain errors to HTTP"]
+      authModule["modules/auth<br/>register, login, me, JWT"]
+      userModule["modules/user<br/>CRUD, count, search"]
+      authGuard["auth guard<br/>Bearer token validation"]
+    end
+  end
+
+  sqlite[("SQLite file<br/>bun:sqlite, strict mode, busy_timeout, WAL")]
+
+  browser -- "GET UI routes" --> server
+  server --> frontendRouter
+  frontendRouter -- "serves HTML bundle" --> browser
+  browser -- "executes" --> reactApp
+  reactApp --> apiClient
+  apiClient -- "JSON /api/*" --> server
+  server --> apiRouter
+  apiRouter --> apiApp
+
+  apiApp --> openapi
+  apiApp --> errorHandler
+  apiApp --> authModule
+  apiApp --> userModule
+  userModule --> authGuard
+  authGuard --> authModule
+  authModule -- "creates and authenticates users" --> userModule
+  userModule -- "prepared SQL" --> sqlite
+
+  class browser client
+  class server,reactApp runtime
+  class frontendRouter,apiRouter,apiClient boundary
+  class apiApp,authModule,userModule,authGuard module
+  class sqlite data
+  class openapi,errorHandler concern
+  style bunRuntime fill:#f8fafc,stroke:#334155,color:#0f172a
+  style apiRuntime fill:#f0fdf4,stroke:#16a34a,color:#052e16

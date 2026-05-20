@@ -1,6 +1,33 @@
-flowchart TD
-  Partner["Partner / Evaluator"] --> UI["React UI"]
-  Partner --> API["REST API"]
-  UI --> API
-  API --> DB["SQLite via bun:sqlite"]
-  API --> OpenAPI["OpenAPI docs"]
+flowchart TB
+  classDef actor fill:#fff7ed,stroke:#c2410c,color:#431407
+  classDef app fill:#eff6ff,stroke:#2563eb,color:#172554
+  classDef api fill:#ecfdf5,stroke:#059669,color:#064e3b
+  classDef data fill:#f8fafc,stroke:#475569,color:#0f172a
+  classDef docs fill:#fefce8,stroke:#a16207,color:#422006
+
+  evaluator["Partner / Evaluator<br/>validates challenge and explores data"]
+  partnerSystem["Partner System<br/>optional direct REST integration"]
+  browser["Web Browser<br/>runs the React UI"]
+
+  subgraph softwareArch["Software Arch API<br/>single Bun runtime"]
+    ui["React UI<br/>auth and user management pages"]
+    api["REST API<br/>Elysia controllers and Zod contracts"]
+    openapi["OpenAPI Documentation<br/>/api/openapi and /api/openapi/json"]
+  end
+
+  db[("SQLite Database<br/>bun:sqlite, migrations, WAL")]
+
+  evaluator -- "uses" --> browser
+  evaluator -- "tests REST contract" --> api
+  partnerSystem -- "Bearer token + JSON over HTTP" --> api
+  browser -- "serves UI routes" --> ui
+  ui -- "fetch /api through api-client.ts" --> api
+  api -- "read/write users" --> db
+  api -- "publishes schema" --> openapi
+
+  class evaluator,partnerSystem actor
+  class browser,ui app
+  class api api
+  class db data
+  class openapi docs
+  style softwareArch fill:#f8fafc,stroke:#334155,color:#0f172a

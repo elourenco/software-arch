@@ -1,0 +1,103 @@
+<mxfile host="app.diagrams.net" agent="Codex" version="24.7.17" type="device">
+  <diagram id="software-arch-c4-container" name="C4 Container">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="bunRuntime" value="Bun runtime&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;one deployable process&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#334155;fontColor=#0f172a;dashed=1;arcSize=8;container=1;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="230" y="60" width="1010" height="640" as="geometry"/>
+        </mxCell>
+        <mxCell id="apiRuntime" value="src/api" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#16a34a;fontColor=#052e16;dashed=1;arcSize=8;container=1;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="650" y="170" width="500" height="420" as="geometry"/>
+        </mxCell>
+        <mxCell id="browser" value="Browser&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;HTML, React Router, fetch&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7ed;strokeColor=#c2410c;fontColor=#431407;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="30" y="130" width="160" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="server" value="src/server.ts&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;Bun.serve entrypoint&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#2563eb;fontColor=#172554;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="280" y="130" width="170" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="frontendRouter" value="src/routes/frontend-router.ts&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;HTML routes and UI fallback&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0f9ff;strokeColor=#0284c7;fontColor=#082f49;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="280" y="260" width="190" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="apiRouter" value="src/routes/api-router.ts&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;delegates /api to Elysia&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0f9ff;strokeColor=#0284c7;fontColor=#082f49;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="510" y="130" width="170" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="reactApp" value="src/app&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;React pages and components&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#2563eb;fontColor=#172554;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="280" y="430" width="170" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="apiClient" value="src/app/services/api-client.ts&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;only UI HTTP boundary&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0f9ff;strokeColor=#0284c7;fontColor=#082f49;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="490" y="430" width="190" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="apiApp" value="app.ts&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;Elysia composition&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#059669;fontColor=#064e3b;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="720" y="130" width="160" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="openapi" value="OpenAPI plugin&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;/api/openapi&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fefce8;strokeColor=#a16207;fontColor=#422006;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="720" y="260" width="160" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="errorHandler" value="shared error handler&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;domain errors to HTTP&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fefce8;strokeColor=#a16207;fontColor=#422006;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="920" y="260" width="170" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="authModule" value="modules/auth&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;register, login, me, JWT&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#059669;fontColor=#064e3b;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="920" y="390" width="170" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="userModule" value="modules/user&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;CRUD, count, search&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#059669;fontColor=#064e3b;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="720" y="390" width="160" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="authGuard" value="auth guard&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;Bearer token validation&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#059669;fontColor=#064e3b;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="820" y="510" width="170" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="sqlite" value="SQLite file&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;bun:sqlite, strict mode, busy_timeout, WAL&lt;/font&gt;" style="shape=cylinder3d;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#f8fafc;strokeColor=#475569;fontColor=#0f172a;" vertex="1" parent="1">
+          <mxGeometry x="720" y="760" width="210" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeBrowserServer" value="GET UI routes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#334155;fontColor=#0f172a;" edge="1" parent="1" source="browser" target="server">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeServerFrontend" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#334155;" edge="1" parent="1" source="server" target="frontendRouter">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeFrontendBrowser" value="serves HTML bundle" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#334155;fontColor=#0f172a;" edge="1" parent="1" source="frontendRouter" target="browser">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeBrowserReact" value="executes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#334155;fontColor=#0f172a;" edge="1" parent="1" source="browser" target="reactApp">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeReactClient" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#334155;" edge="1" parent="1" source="reactApp" target="apiClient">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeClientServer" value="JSON /api/*" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#334155;fontColor=#0f172a;" edge="1" parent="1" source="apiClient" target="server">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeServerApiRouter" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#334155;" edge="1" parent="1" source="server" target="apiRouter">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeApiRouterApiApp" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#334155;" edge="1" parent="1" source="apiRouter" target="apiApp">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeApiAppOpenapi" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#334155;" edge="1" parent="1" source="apiApp" target="openapi">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeApiAppError" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#334155;" edge="1" parent="1" source="apiApp" target="errorHandler">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeApiAppAuth" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#334155;" edge="1" parent="1" source="apiApp" target="authModule">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeApiAppUser" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#334155;" edge="1" parent="1" source="apiApp" target="userModule">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeUserGuard" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#334155;" edge="1" parent="1" source="userModule" target="authGuard">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeGuardAuth" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#334155;" edge="1" parent="1" source="authGuard" target="authModule">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeAuthUser" value="creates and authenticates users" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#334155;fontColor=#0f172a;" edge="1" parent="1" source="authModule" target="userModule">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeUserSqlite" value="prepared SQL" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#334155;fontColor=#0f172a;" edge="1" parent="1" source="userModule" target="sqlite">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

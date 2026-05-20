@@ -1,7 +1,59 @@
 flowchart TD
-  Route["*.routes.ts"] --> Controller["*.controller.ts"]
-  Controller --> Service["*.service.ts"]
-  Service --> Repository["*.repository.ts"]
-  Repository --> Database["bun:sqlite"]
-  Service --> Model["*.model.ts"]
-  Route --> Schema["*.schema.ts / Zod"]
+  classDef boundary fill:#f0f9ff,stroke:#0284c7,color:#082f49
+  classDef domain fill:#ecfdf5,stroke:#059669,color:#064e3b
+  classDef data fill:#f8fafc,stroke:#475569,color:#0f172a
+  classDef error fill:#fef2f2,stroke:#dc2626,color:#450a0a
+  request["HTTP request<br/>/api/&lt;domain&gt;"]
+
+  subgraph modulePattern["Feature module MVC contract"]
+    route["&lt;domain&gt;.routes.ts<br/>Elysia route binding"]
+    schema["&lt;domain&gt;.schema.ts<br/>Zod body, params, query and response DTOs"]
+    controller["&lt;domain&gt;.controller.ts<br/>thin HTTP adapter"]
+    service["&lt;domain&gt;.service.ts<br/>stateless business rules"]
+    model["&lt;domain&gt;.model.ts<br/>domain types"]
+    repository["&lt;domain&gt;.repository.ts<br/>prepared SQL and persistence boundary"]
+    mapper["&lt;domain&gt;.mapper.ts<br/>DB row to public model"]
+    domainErrors["&lt;domain&gt;.errors.ts<br/>domain-specific failures"]
+  end
+
+  authGuard["shared auth guard<br/>Bearer token to request user"]
+  errorHandler["shared error handler<br/>AppError to stable HTTP response"]
+  database[("SQLite<br/>single-writer, WAL, busy_timeout")]
+  response["HTTP response<br/>validated public payload"]
+
+  subgraph implementedModules["Implemented modules"]
+    auth["auth<br/>register, login, me, JWT"]
+    user["user<br/>CRUD, count, list, search"]
+  end
+
+  request --> route
+  route --> schema
+  route --> authGuard
+  route --> controller
+  schema --> controller
+  controller --> service
+  service --> model
+  service --> repository
+  repository --> mapper
+  repository --> database
+  mapper --> service
+  service --> controller
+  controller --> response
+
+  service --> domainErrors
+  repository --> domainErrors
+  domainErrors --> errorHandler
+  errorHandler --> response
+
+  authGuard --> auth
+  auth -- "delegates user lookup and creation" --> user
+  user -. "follows pattern" .-> route
+  auth -. "uses controller/service/schema pattern" .-> route
+
+  class request,response boundary
+  class route,schema,controller,authGuard,errorHandler boundary
+  class service,model,auth,user domain
+  class repository,mapper,database data
+  class domainErrors error
+  style modulePattern fill:#f8fafc,stroke:#334155,color:#0f172a
+  style implementedModules fill:#fff7ed,stroke:#c2410c,color:#431407
