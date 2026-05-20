@@ -1,0 +1,9 @@
+flowchart LR
+  Server["src/server.ts Bun.serve"] --> ApiRouter["src/routes/api-router.ts"]
+  Server --> FrontRouter["src/routes/frontend-router.ts"]
+  ApiRouter --> Elysia["src/api/app.ts Elysia"]
+  Elysia --> Auth["auth module"]
+  Elysia --> User["user module"]
+  User --> SQLite["SQLite database"]
+  FrontRouter --> React["src/app React UI"]
+  React --> ApiRouter

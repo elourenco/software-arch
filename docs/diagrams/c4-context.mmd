@@ -1,0 +1,6 @@
+flowchart TD
+  Partner["Partner / Evaluator"] --> UI["React UI"]
+  Partner --> API["REST API"]
+  UI --> API
+  API --> DB["SQLite via bun:sqlite"]
+  API --> OpenAPI["OpenAPI docs"]

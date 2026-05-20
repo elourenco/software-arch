@@ -1,0 +1,7 @@
+flowchart TD
+  Route["*.routes.ts"] --> Controller["*.controller.ts"]
+  Controller --> Service["*.service.ts"]
+  Service --> Repository["*.repository.ts"]
+  Repository --> Database["bun:sqlite"]
+  Service --> Model["*.model.ts"]
+  Route --> Schema["*.schema.ts / Zod"]
