@@ -33,6 +33,9 @@ export function createApiApp(options: ApiAppOptions = {}) {
     .use(openapi({
       path: "/api/openapi",
       specPath: "/api/openapi/json",
+      scalar: {
+        url: "/api/openapi/json",
+      },
       documentation: {
         info: { title: "Software Arch API", version: "1.0.0" },
         tags: [
