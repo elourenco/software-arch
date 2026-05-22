@@ -51,4 +51,18 @@ describe("users HTTP routes", () => {
       headers: auth,
     }))).status).toBe(204);
   });
+
+  test("rejects invalid user creation payloads", async () => {
+    const auth = { authorization: `Bearer ${token}`, "content-type": "application/json" };
+    const invalid = await app.handle(new Request("http://localhost/api/users", {
+      method: "POST",
+      body: JSON.stringify({ name: "A", email: "not-email", password: "short", role: "user" }),
+      headers: auth,
+    }));
+
+    expect(invalid.status).toBe(400);
+    expect(await invalid.json()).toEqual({
+      error: { code: "VALIDATION_ERROR", message: "Invalid request payload" },
+    });
+  });
 });
