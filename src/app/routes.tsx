@@ -1,5 +1,7 @@
 import { Navigate, type RouteObject, useParams } from "react-router";
-import { Shell } from "./components/Shell";
+import { AuthenticatedLayout } from "./components/AuthenticatedLayout";
+import { PublicLayout } from "./components/PublicLayout";
+import { RequireAuth } from "./components/RequireAuth";
 import DashboardPage from "./pages";
 import LoginPage from "./pages/login";
 import UsersPage from "./pages/users";
@@ -12,14 +14,23 @@ function UserDetailRoute() {
 
 export const appRoutes: RouteObject[] = [
   {
-    path: "/",
-    element: <Shell />,
+    element: <PublicLayout />,
     children: [
-      { index: true, id: "dashboard", element: <DashboardPage /> },
-      { path: "login", id: "login", element: <LoginPage /> },
-      { path: "users", id: "users", element: <UsersPage /> },
-      { path: "users/:id", id: "user-detail", element: <UserDetailRoute /> },
-      { path: "*", id: "not-found", element: <Navigate to="/" replace /> },
+      { path: "/login", id: "login", element: <LoginPage /> },
     ],
   },
+  {
+    element: <RequireAuth />,
+    children: [
+      {
+        element: <AuthenticatedLayout />,
+        children: [
+          { path: "/", id: "dashboard", element: <DashboardPage /> },
+          { path: "/users", id: "users", element: <UsersPage /> },
+          { path: "/users/:id", id: "user-detail", element: <UserDetailRoute /> },
+        ],
+      },
+    ],
+  },
+  { path: "*", id: "not-found", element: <Navigate to="/" replace /> },
 ];

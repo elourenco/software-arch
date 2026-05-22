@@ -37,4 +37,22 @@ describe("auth HTTP routes", () => {
     expect(me.status).toBe(200);
     expect((await me.json() as { email: string }).email).toBe("alan@example.com");
   });
+
+  test("logs in with the seeded admin user", async () => {
+    const login = await app.handle(new Request("http://localhost/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email: "super@admin.app", password: "123456" }),
+      headers: { "content-type": "application/json" },
+    }));
+    const session = await login.json() as {
+      user: { email: string; role: string };
+      accessToken: string;
+    };
+
+    expect(login.status).toBe(200);
+    expect(session.user.email).toBe("super@admin.app");
+    expect(session.user.role).toBe("admin");
+    expect(session.user).not.toHaveProperty("passwordHash");
+    expect(session.accessToken.split(".")).toHaveLength(3);
+  });
 });

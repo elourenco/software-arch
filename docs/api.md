@@ -14,6 +14,14 @@ POST /api/auth/register
 POST /api/auth/login
 ```
 
+Credencial administrativa inicial criada pelas migrations:
+
+```txt
+email: super@admin.app
+password: 123456
+role: admin
+```
+
 Rotas autenticadas:
 
 ```txt
@@ -41,6 +49,8 @@ Payload de criacao:
 ```
 
 Respostas publicas nunca incluem `passwordHash`.
+
+`POST /api/auth/login` aceita qualquer senha nao vazia para permitir verificacao de credenciais existentes. A politica de senha forte permanece nas operacoes que criam ou atualizam senha.
 
 ## 4. Trade-offs
 
