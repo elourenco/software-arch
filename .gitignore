@@ -6,4 +6,4 @@ data/
 *.db-wal
 .DS_Store
 coverage/
-docs/superpowers/*
+docs/superpowers/
