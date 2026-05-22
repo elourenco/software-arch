@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router";
 import { Field } from "../components/Field";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { setAccessToken } from "../services/auth-session";
 import { createApiClient } from "../services/api-client";
 
 const api = createApiClient();
@@ -22,7 +23,7 @@ export default function LoginPage() {
     event.preventDefault();
     try {
       const session = await api.post<{ accessToken: string }>("/auth/login", { email, password });
-      localStorage.setItem("accessToken", session.accessToken);
+      setAccessToken(session.accessToken);
       setMessage("Authenticated. You can manage users now.");
       navigate(from, { replace: true });
     } catch {
