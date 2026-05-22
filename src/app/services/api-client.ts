@@ -4,6 +4,19 @@ export type ApiClientOptions = {
   fetcher?: (request: Request) => Promise<Response>;
 };
 
+type ApiErrorPayload = { error?: { code?: string; message?: string } };
+
+export class ApiClientError extends Error {
+  constructor(
+    public readonly status: number,
+    public readonly code: string | undefined,
+    message: string,
+  ) {
+    super(message);
+    this.name = "ApiClientError";
+  }
+}
+
 /** Small HTTP client that keeps UI calls behind the `/api` boundary. */
 export function createApiClient(options: ApiClientOptions = {}) {
   const baseUrl = options.baseUrl ?? globalThis.location?.origin ?? "http://localhost:3000";
@@ -20,7 +33,15 @@ export function createApiClient(options: ApiClientOptions = {}) {
       headers,
       body: body ? JSON.stringify(body) : undefined,
     }));
-    if (!response.ok) throw new Error(`API request failed with ${response.status}`);
+    if (!response.ok) {
+      const payload = await readApiErrorPayload(response);
+      const apiError = payload?.error;
+      throw new ApiClientError(
+        response.status,
+        apiError?.code,
+        apiError?.message ?? `API request failed with ${response.status}`,
+      );
+    }
     return response.status === 204 ? undefined as T : response.json() as Promise<T>;
   }
 
@@ -30,4 +51,13 @@ export function createApiClient(options: ApiClientOptions = {}) {
     put: <T>(path: string, body: unknown) => request<T>("PUT", path, body),
     delete: <T>(path: string) => request<T>("DELETE", path),
   };
+}
+
+async function readApiErrorPayload(response: Response): Promise<ApiErrorPayload | null> {
+  if (!response.headers.get("content-type")?.includes("application/json")) return null;
+  try {
+    return await response.json() as ApiErrorPayload;
+  } catch {
+    return null;
+  }
 }
