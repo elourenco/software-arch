@@ -1,6 +1,5 @@
 import { Edit, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
 import { Field } from "../../components/Field";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
@@ -22,28 +21,33 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import { ApiClientError, createApiClient } from "../../services/api-client";
+import { getAccessToken } from "../../services/auth-session";
 import {
-  type CreateUserFormErrors,
-  type CreateUserFormState,
-  hasCreateUserFormErrors,
+  type UserFormErrors,
+  type UserFormMode,
+  type UserFormState,
+  hasUserFormErrors,
   normalizeCreateUserInput,
-  validateCreateUserForm,
+  normalizeUpdateUserInput,
+  validateUserForm,
 } from "./user-form-validation";
 
 type User = { id: string; name: string; email: string; role: "admin" | "user" };
 
-const api = createApiClient({ getToken: () => localStorage.getItem("accessToken") });
-const emptyCreateForm: CreateUserFormState = { name: "", email: "", password: "", role: "user" };
+const api = createApiClient({ getToken: () => getAccessToken() });
+const emptyUserForm: UserFormState = { name: "", email: "", password: "", role: "user" };
 
 /** User list page with create, search, edit, and delete workflows. */
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [searchName, setSearchName] = useState("");
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [createForm, setCreateForm] = useState<CreateUserFormState>(emptyCreateForm);
-  const [createErrors, setCreateErrors] = useState<CreateUserFormErrors>({});
-  const [createApiError, setCreateApiError] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [formMode, setFormMode] = useState<UserFormMode>("create");
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [userForm, setUserForm] = useState<UserFormState>(emptyUserForm);
+  const [formErrors, setFormErrors] = useState<UserFormErrors>({});
+  const [formApiError, setFormApiError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [listError, setListError] = useState("");
 
@@ -56,40 +60,79 @@ export default function UsersPage() {
     }
   }
 
-  async function create(event: React.FormEvent) {
+  async function saveUser(event: React.FormEvent) {
     event.preventDefault();
-    const errors = validateCreateUserForm(createForm);
-    setCreateErrors(errors);
-    setCreateApiError("");
-    if (hasCreateUserFormErrors(errors)) return;
+    const errors = validateUserForm(userForm, formMode);
+    setFormErrors(errors);
+    setFormApiError("");
+    if (hasUserFormErrors(errors)) return;
 
-    setIsCreating(true);
+    setIsSaving(true);
     try {
-      await api.post<User>("/users", normalizeCreateUserInput(createForm));
-      setIsCreateOpen(false);
-      setCreateForm(emptyCreateForm);
+      if (formMode === "create") {
+        await api.post<User>("/users", normalizeCreateUserInput(userForm));
+      } else if (editingUser) {
+        await api.put<User>(`/users/${editingUser.id}`, normalizeUpdateUserInput(userForm));
+      }
+      closeUserForm();
       await load();
     } catch (error) {
-      setCreateApiError(toCreateUserErrorMessage(error));
+      setFormApiError(toUserFormErrorMessage(error));
     } finally {
-      setIsCreating(false);
+      setIsSaving(false);
     }
   }
 
-  function updateCreateField(field: keyof CreateUserFormState, value: string) {
-    setCreateForm((current) => ({ ...current, [field]: value }));
-    setCreateErrors((current) => ({ ...current, [field]: undefined }));
-    setCreateApiError("");
+  function updateUserField(field: keyof UserFormState, value: string) {
+    setUserForm((current) => ({ ...current, [field]: value }));
+    setFormErrors((current) => ({ ...current, [field]: undefined }));
+    setFormApiError("");
   }
 
-  function handleCreateOpenChange(open: boolean) {
-    if (isCreating) return;
-    setIsCreateOpen(open);
+  function handleFormOpenChange(open: boolean) {
+    if (isSaving) return;
+    setIsFormOpen(open);
     if (open) {
-      setCreateForm(emptyCreateForm);
-      setCreateErrors({});
-      setCreateApiError("");
+      openCreateForm();
+    } else {
+      resetUserForm();
     }
+  }
+
+  function openCreateForm() {
+    setFormMode("create");
+    setEditingUser(null);
+    setUserForm(emptyUserForm);
+    setFormErrors({});
+    setFormApiError("");
+    setIsFormOpen(true);
+  }
+
+  function openEditForm(user: User) {
+    setFormMode("edit");
+    setEditingUser(user);
+    setUserForm({
+      name: user.name,
+      email: user.email,
+      password: "",
+      role: user.role,
+    });
+    setFormErrors({});
+    setFormApiError("");
+    setIsFormOpen(true);
+  }
+
+  function closeUserForm() {
+    setIsFormOpen(false);
+    resetUserForm();
+  }
+
+  function resetUserForm() {
+    setFormMode("create");
+    setEditingUser(null);
+    setUserForm(emptyUserForm);
+    setFormErrors({});
+    setFormApiError("");
   }
 
   async function searchUsers() {
@@ -136,7 +179,7 @@ export default function UsersPage() {
           </div>
           <Button
             type="button"
-            onClick={() => handleCreateOpenChange(true)}
+            onClick={openCreateForm}
           >
             <Plus />
             Criar usuario
@@ -162,11 +205,9 @@ export default function UsersPage() {
                 <TableCell>{user.role}</TableCell>
                 <TableCell>
                   <div className="flex justify-end gap-2">
-                    <Button asChild variant="outline" size="sm">
-                      <Link to={`/users/${user.id}`}>
-                        <Edit />
-                        Editar
-                      </Link>
+                    <Button type="button" variant="outline" size="sm" onClick={() => openEditForm(user)}>
+                      <Edit />
+                      Editar
                     </Button>
                     <Button
                       type="button"
@@ -193,73 +234,73 @@ export default function UsersPage() {
         </Table>
       </CardContent>
 
-      <Dialog open={isCreateOpen} onOpenChange={handleCreateOpenChange}>
+      <Dialog open={isFormOpen} onOpenChange={handleFormOpenChange}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Criar usuario</DialogTitle>
+            <DialogTitle>{formMode === "create" ? "Criar usuario" : "Editar usuario"}</DialogTitle>
             <DialogDescription>Dados obrigatorios para acesso e perfil.</DialogDescription>
           </DialogHeader>
-          <form className="flex flex-col gap-4" onSubmit={create} noValidate>
+          <form className="flex flex-col gap-4" onSubmit={saveUser} noValidate>
             <Field
               label="Name"
-              name="createName"
-              value={createForm.name}
-              onChange={(value) => updateCreateField("name", value)}
-              error={createErrors.name}
+              name="userName"
+              value={userForm.name}
+              onChange={(value) => updateUserField("name", value)}
+              error={formErrors.name}
               required
               autoComplete="name"
-              disabled={isCreating}
+              disabled={isSaving}
             />
             <Field
               label="Email"
-              name="createEmail"
+              name="userEmail"
               type="email"
-              value={createForm.email}
-              onChange={(value) => updateCreateField("email", value)}
-              error={createErrors.email}
+              value={userForm.email}
+              onChange={(value) => updateUserField("email", value)}
+              error={formErrors.email}
               required
               autoComplete="email"
-              disabled={isCreating}
+              disabled={isSaving}
             />
             <Field
               label="Password"
-              name="createPassword"
+              name="userPassword"
               type="password"
-              value={createForm.password}
-              onChange={(value) => updateCreateField("password", value)}
-              error={createErrors.password}
-              required
+              value={userForm.password}
+              onChange={(value) => updateUserField("password", value)}
+              error={formErrors.password}
+              required={formMode === "create"}
               autoComplete="new-password"
-              disabled={isCreating}
+              disabled={isSaving}
             />
             <div className="field">
-              <Label htmlFor="createRole">Role</Label>
+              <Label htmlFor="userRole">Role</Label>
               <select
-                id="createRole"
-                name="createRole"
-                value={createForm.role}
-                aria-invalid={createErrors.role ? true : undefined}
-                aria-describedby={createErrors.role ? "createRole-error" : undefined}
+                id="userRole"
+                name="userRole"
+                value={userForm.role}
+                aria-invalid={formErrors.role ? true : undefined}
+                aria-describedby={formErrors.role ? "userRole-error" : undefined}
                 className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
-                disabled={isCreating}
-                onChange={(event) => updateCreateField("role", event.currentTarget.value)}
+                disabled={isSaving}
+                onChange={(event) => updateUserField("role", event.currentTarget.value)}
               >
                 <option value="user">user</option>
                 <option value="admin">admin</option>
               </select>
-              {createErrors.role && (
-                <p id="createRole-error" className="text-sm text-destructive" role="alert">
-                  {createErrors.role}
+              {formErrors.role && (
+                <p id="userRole-error" className="text-sm text-destructive" role="alert">
+                  {formErrors.role}
                 </p>
               )}
             </div>
-            {createApiError && <p className="text-sm text-destructive" role="alert">{createApiError}</p>}
+            {formApiError && <p className="text-sm text-destructive" role="alert">{formApiError}</p>}
             <DialogFooter>
-              <Button type="button" variant="outline" disabled={isCreating} onClick={() => handleCreateOpenChange(false)}>
+              <Button type="button" variant="outline" disabled={isSaving} onClick={closeUserForm}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isCreating}>
-                {isCreating ? "Criando..." : "Criar usuario"}
+              <Button type="submit" disabled={isSaving}>
+                {isSaving ? "Salvando..." : formMode === "create" ? "Criar usuario" : "Salvar usuario"}
               </Button>
             </DialogFooter>
           </form>
@@ -269,10 +310,10 @@ export default function UsersPage() {
   );
 }
 
-function toCreateUserErrorMessage(error: unknown): string {
+function toUserFormErrorMessage(error: unknown): string {
   if (error instanceof ApiClientError) {
     if (error.code === "EMAIL_ALREADY_EXISTS") return "Email ja cadastrado.";
     if (error.code === "VALIDATION_ERROR") return "Dados invalidos.";
   }
-  return "Could not create user.";
+  return "Could not save user.";
 }

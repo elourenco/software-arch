@@ -6,7 +6,7 @@ Reorganizar a pagina autenticada `/users` para ser uma lista operacional de usua
 
 A acao primaria da tela passa a ser **Criar usuario**, posicionada acima da tabela e alinhada a direita. O clique abre um modal com formulario completo de criacao. O form inline atual sai da pagina porque mistura criacao, busca e listagem no mesmo bloco e hoje envia uma senha fixa.
 
-A edicao permanece na rota existente `/users/:id`. A exclusao passa a ficar acessivel diretamente na coluna de acoes da tabela.
+A edicao usa o mesmo modal da criacao, aberto pela acao `Editar` da tabela e preenchido com os dados publicos do usuario. A senha fica vazia no modo edicao porque a API nao expoe senha nem hash; se preenchida, atualiza a senha. A exclusao passa a ficar acessivel diretamente na coluna de acoes da tabela.
 
 ## 2. Analise Tecnica
 
@@ -14,7 +14,7 @@ Estado atual:
 
 - `src/app/pages/users/index.tsx` renderiza um `Card` com formulario inline de criacao, botao de busca e tabela.
 - A criacao usa apenas `name` e `email` na UI e envia `password: "strong-password"` de forma fixa.
-- A tabela mostra `name`, `email` e `role`; o nome linka para `/users/:id`.
+- A tabela mostra `name`, `email` e `role`; o nome linkava para `/users/:id`.
 - A exclusao existe no detalhe `/users/:id`, nao na lista.
 - Todo consumo HTTP da UI passa por `src/app/services/api-client.ts`, que deve continuar sendo o boundary unico para `/api`.
 - `POST /api/users` ja usa `createUserSchema` em `src/api/modules/user/user.routes.ts`.
@@ -35,10 +35,10 @@ Problemas a corrigir:
 
 Decisao aprovada:
 
-- Manter a rota `/users/:id` para edicao.
-- Implementar modal somente para criacao.
+- Abrir o modal preenchido ao clicar em `Editar`.
+- Reutilizar o mesmo formulario para criacao e edicao.
 - Adicionar a coluna `Acoes` na tabela com `Editar` e `Deletar`.
-- Validar criacao na UI antes do request e preservar as validacoes do backend como fonte de verdade.
+- Validar criacao/edicao na UI antes do request e preservar as validacoes do backend como fonte de verdade.
 
 ## 3. Implementacao
 
@@ -48,8 +48,9 @@ Alteracoes planejadas no frontend:
    - Remover o formulario inline de criacao.
    - Manter carregamento de usuarios via `api.get<User[]>("/users")`.
    - Posicionar o botao **Criar usuario** no topo da superficie da tabela, alinhado a direita.
-   - Abrir/fechar modal local de criacao.
-   - Recarregar a lista apos criacao bem-sucedida.
+   - Abrir/fechar modal local de criacao e edicao.
+   - Preencher `name`, `email` e `role` no modo edicao; deixar `password` vazio.
+   - Recarregar a lista apos criacao/edicao bem-sucedida.
    - Fechar o modal somente apos sucesso da API.
    - Bloquear o botao de submit enquanto a criacao estiver em andamento.
 
@@ -65,13 +66,14 @@ Alteracoes planejadas no frontend:
 4. Implementar validacao client-side no modal.
    - `name.trim().length >= 2`.
    - `email` em formato valido.
-   - `password.length >= 8`.
+   - `password.length >= 8` na criacao.
+   - `password` opcional na edicao, mas com minimo de 8 caracteres quando preenchido.
    - `role` limitado a `admin | user`.
    - Mostrar erros antes de enviar request.
 
 5. Atualizar tabela.
    - Colunas: `Nome`, `Email`, `Role`, `Acoes`.
-   - `Editar` navega para `/users/:id`.
+   - `Editar` abre o modal preenchido.
    - `Deletar` chama `DELETE /api/users/:id`.
    - Durante delete, bloquear apenas a linha afetada quando possivel.
    - Apos delete bem-sucedido, remover o usuario da lista local ou recarregar `/users`. Recarregar e mais simples e consistente com o estado atual.
@@ -92,9 +94,9 @@ Alteracoes planejadas no backend:
 
 ## 4. Trade-offs
 
-- Modal para criacao reduz ruido visual e evita form permanente na pagina, mas adiciona estado local de abertura, loading e erros.
+- Modal para criacao/edicao reduz ruido visual e evita form permanente na pagina, mas adiciona estado local de abertura, modo, loading e erros.
 - Validacao client-side duplica parte do contrato Zod, mas reduz latencia percebida e evita round-trips invalidos no caminho comum. O backend continua sendo a fonte de verdade.
-- Manter edicao em `/users/:id` evita duplicar fluxo de edicao em modal e reduz risco de regressao, mas deixa create e edit com superficies diferentes.
+- Reutilizar o modal para edicao alinha create/edit na lista, mas exige tratar senha como campo opcional no modo edicao porque o valor atual nao pode ser preenchido.
 - Recarregar a lista apos create/delete e mais simples e resiliente contra estado local stale, mas custa uma requisicao extra. Para o volume atual do projeto, esse custo e aceitavel.
 - Nao introduzir paginacao mantem escopo pequeno, mas `GET /api/users` segue sendo o gargalo natural quando o volume crescer.
 
@@ -104,12 +106,11 @@ Use este desenho quando:
 
 - O CRUD e administrativo e a lista e a principal superficie de trabalho.
 - A criacao deve ser rapida, validada e sem sair da pagina.
-- A edicao detalhada ainda se beneficia de uma rota propria.
+- A edicao deve acontecer sem sair da lista.
 - O volume de usuarios ainda cabe em `GET /api/users` sem paginacao.
 
 Evite expandir este changeset para:
 
-- Edicao em modal.
 - Bulk actions.
 - Paginacao, ordenacao server-side ou filtros avancados.
 - RBAC visual para esconder `admin`.
@@ -122,7 +123,7 @@ Esses itens so devem entrar quando houver requisito explicito ou problema real d
 Performance e latencia:
 
 - O caminho quente da pagina continua sendo `GET /api/users`.
-- Criacao e exclusao fazem uma escrita SQLite e um reload da lista.
+- Criacao, edicao e exclusao fazem escrita SQLite e um reload da lista.
 - O modal evita requests antes de passar na validacao local.
 - O submit deve ter loading para impedir duplo clique e criacao concorrente acidental pelo mesmo cliente.
 
@@ -158,5 +159,6 @@ bun run dev
 - Abrir modal, validar campos obrigatorios e erros locais.
 - Criar usuario valido e confirmar fechamento do modal e reload da tabela.
 - Tentar email duplicado e confirmar feedback sem fechar modal.
-- Clicar `Editar` e confirmar navegacao para `/users/:id`.
+- Clicar `Editar` e confirmar modal preenchido.
+- Salvar edicao com senha vazia e confirmar fechamento do modal e reload da tabela.
 - Clicar `Deletar` e confirmar remocao da lista.

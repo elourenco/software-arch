@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Rework `/users` into a table-first management page with create-user modal, explicit edit/delete actions, and verified create validation on both UI and API boundaries.
+**Goal:** Rework `/users` into a table-first management page with shared create/edit modal, explicit delete action, and verified user form validation on both UI and API boundaries.
 
-**Architecture:** Keep the existing React Router shape and the `/api` boundary through `src/app/services/api-client.ts`. Preserve `/users/:id` for editing, add only the creation modal to `/users`, and leave the backend contract unchanged except for test coverage. Use small UI primitives consistent with the existing manual shadcn/Radix style.
+**Architecture:** Keep the existing React Router shape and the `/api` boundary through `src/app/services/api-client.ts`. Use the `/users` table as the operational surface: create opens an empty modal, edit opens the same modal filled with public user data, and password remains blank/optional when editing. Use small UI primitives consistent with the existing manual shadcn/Radix style.
 
 **Tech Stack:** Bun, React 19, React Router 7, Elysia, Zod, Bun SQLite, radix-ui, lucide-react, bun:test.
 
@@ -15,11 +15,11 @@
 - Modify `tests/http/users.routes.test.ts`: add explicit invalid-create coverage for `POST /api/users`.
 - Modify `src/app/services/api-client.ts`: preserve current API client shape and add a typed `ApiClientError` carrying HTTP status and API error code.
 - Modify `tests/app/api-client.test.ts`: verify non-2xx API errors expose `status`, `code`, and `message`.
-- Create `src/app/pages/users/user-form-validation.ts`: small pure validation helper for create-user form state.
-- Create `tests/app/user-form-validation.test.ts`: cover valid/invalid client-side form validation without rendering React.
+- Create `src/app/pages/users/user-form-validation.ts`: small pure validation helper for create/edit user form state.
+- Create `tests/app/user-form-validation.test.ts`: cover valid/invalid create and edit form validation without rendering React.
 - Modify `src/app/components/Field.tsx`: support native input props and field-level errors.
 - Create `src/app/components/ui/dialog.tsx`: local Radix dialog primitive matching existing UI component style.
-- Modify `src/app/pages/users/index.tsx`: implement toolbar, modal form, validation, typed API error handling, and table action column.
+- Modify `src/app/pages/users/index.tsx`: implement toolbar, shared create/edit modal form, validation, typed API error handling, and table action column.
 
 ## Task 1: Backend Create Validation Coverage
 
@@ -717,6 +717,6 @@ Expected: no whitespace errors; status includes only plan and implementation fil
 
 ## Self-Review
 
-- Spec coverage: Tasks cover backend validation confirmation, client validation, modal create flow, table action column, edit route preservation, delete from list, typed API error feedback, and verification.
+- Spec coverage: Tasks cover backend validation confirmation, client validation, shared create/edit modal flow, table action column, delete from list, typed API error feedback, and verification.
 - Placeholder scan: no TBD/TODO/fill-in placeholders.
 - Type consistency: `CreateUserFormState`, `CreateUserFormErrors`, `ApiClientError`, and `User` are consistently named across tests and implementation.

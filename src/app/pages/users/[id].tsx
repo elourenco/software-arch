@@ -4,9 +4,10 @@ import { Field } from "../../components/Field";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { createApiClient } from "../../services/api-client";
+import { getAccessToken } from "../../services/auth-session";
 
 type User = { id: string; name: string; email: string; role: "admin" | "user" };
-const api = createApiClient({ getToken: () => localStorage.getItem("accessToken") });
+const api = createApiClient({ getToken: () => getAccessToken() });
 
 /** User detail page for edit and delete flows. */
 export default function UserDetailPage({ id }: { id: string }) {

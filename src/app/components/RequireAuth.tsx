@@ -1,31 +1,35 @@
 import { useEffect, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router";
+import { clearAccessToken, getAccessToken, type AuthenticatedUser } from "../services/auth-session";
 import { createApiClient } from "../services/api-client";
 
-const api = createApiClient({ getToken: () => localStorage.getItem("accessToken") });
+const api = createApiClient({ getToken: () => getAccessToken() });
 
-type AuthStatus = "checking" | "authenticated" | "anonymous";
+type AuthState =
+  | { status: "checking" }
+  | { status: "authenticated"; currentUser: AuthenticatedUser }
+  | { status: "anonymous" };
 
 /** Validates the persisted JWT before rendering private routes. */
 export function RequireAuth() {
   const location = useLocation();
-  const [status, setStatus] = useState<AuthStatus>("checking");
+  const [auth, setAuth] = useState<AuthState>({ status: "checking" });
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+    const token = getAccessToken();
     if (!token) {
-      setStatus("anonymous");
+      setAuth({ status: "anonymous" });
       return;
     }
 
     let active = true;
-    api.get("/auth/me")
-      .then(() => {
-        if (active) setStatus("authenticated");
+    api.get<AuthenticatedUser>("/auth/me")
+      .then((currentUser) => {
+        if (active) setAuth({ status: "authenticated", currentUser });
       })
       .catch(() => {
-        localStorage.removeItem("accessToken");
-        if (active) setStatus("anonymous");
+        clearAccessToken();
+        if (active) setAuth({ status: "anonymous" });
       });
 
     return () => {
@@ -33,13 +37,13 @@ export function RequireAuth() {
     };
   }, []);
 
-  if (status === "checking") {
+  if (auth.status === "checking") {
     return <main className="auth-loading">Loading session...</main>;
   }
 
-  if (status === "anonymous") {
+  if (auth.status === "anonymous") {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  return <Outlet />;
+  return <Outlet context={{ currentUser: auth.currentUser }} />;
 }
