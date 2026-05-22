@@ -4,6 +4,15 @@
 
 Aplicacao fullstack em Bun com API REST Elysia, React UI, Zod, SQLite nativo (`bun:sqlite`), OpenAPI e build executavel com bytecode. O dominio principal e `User`, cobrindo CRUD, count, find all, find by ID e find by name.
 
+Entregaveis principais do desafio:
+
+- Checklist final: `docs/final-submission.md`.
+- Arquitetura: `docs/architecture.md`.
+- API: `docs/api.md`.
+- Implantacao local/binario: `docs/deployment.md`.
+- Diagramas fonte: `docs/diagrams/*.mmd` e `docs/diagrams/drawio/*.drawio`.
+- Diagramas renderizados: `docs/diagrams/exports/*.svg` e `docs/diagrams/exports/*.png`.
+
 ## 2. Analise Tecnica
 
 O backend vive em `src/api` e segue MVC por modulo. A UI vive em `src/app` e consome somente `/api` via `src/app/services/api-client.ts`. `src/server.ts` compoe API e UI como entrypoint unico para `bun build --compile --bytecode`.
@@ -31,6 +40,20 @@ Fluxo de API:
 2. `POST /api/auth/login`
 3. Usar `Authorization: Bearer <token>`
 4. Testar `/api/users`, `/api/users/count`, `/api/users/search?name=`
+
+Credencial administrativa inicial:
+
+```txt
+email: super@admin.app
+password: 123456
+```
+
+Execucao do binario em porta isolada:
+
+```bash
+PORT=3131 DATABASE_URL=/tmp/software-arch.db ./dist/software-arch
+curl http://localhost:3131/api/health
+```
 
 ## 4. Trade-offs
 
