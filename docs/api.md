@@ -35,6 +35,13 @@ PUT    /api/users/:id
 DELETE /api/users/:id
 ```
 
+OpenAPI:
+
+```txt
+GET /api/openapi
+GET /api/openapi/json
+```
+
 ## 3. Implementacao
 
 Payload de criacao:
@@ -51,6 +58,14 @@ Payload de criacao:
 Respostas publicas nunca incluem `passwordHash`.
 
 `POST /api/auth/login` aceita qualquer senha nao vazia para permitir verificacao de credenciais existentes. A politica de senha forte permanece nas operacoes que criam ou atualizam senha.
+
+Smoke test local:
+
+```bash
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "content-type: application/json" \
+  -d '{"email":"super@admin.app","password":"123456"}'
+```
 
 ## 4. Trade-offs
 

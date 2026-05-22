@@ -34,9 +34,19 @@ src/
   routes/
 ```
 
+Diagramas:
+
+- C4 contexto: `docs/diagrams/c4-context.mmd`.
+- C4 container: `docs/diagrams/c4-container.mmd`.
+- MVC por modulo: `docs/diagrams/mvc-modules.mmd`.
+- Draw.io: `docs/diagrams/drawio/*.drawio`.
+- Exports renderizados: `docs/diagrams/exports/*.svg` e `docs/diagrams/exports/*.png`.
+
 ## 4. Trade-offs
 
 Feature modules adicionam mais arquivos, mas reduzem acoplamento e deixam o MVC demonstravel por dominio. O runtime unico simplifica a entrega, mas exige cuidado para a UI nao conter regra de negocio.
+
+JWT protege os dados do dominio mesmo com API publicada para parceiros. A alternativa anonima seria mais simples para demonstracao, mas pior para confidencialidade, auditoria e evolucao para credenciais por parceiro.
 
 ## 5. Quando usar vs evitar
 
@@ -45,3 +55,10 @@ Use quando o projeto precisa demonstrar arquitetura e ainda entregar software ex
 ## 6. Escalabilidade
 
 O gargalo esperado e escrita SQLite, nao Elysia. WAL, prepared statements e services stateless mantem baixa latencia no escopo do desafio.
+
+Evolucao incremental recomendada:
+
+1. Adicionar paginacao, ordenacao explicita e limite maximo em `GET /api/users`.
+2. Trocar busca por nome baseada em `LIKE` por FTS quando o volume justificar.
+3. Medir latencia por rota e tempo de query no repository antes de trocar banco.
+4. Migrar o repository para Postgres em alta concorrencia de escrita, mantendo controller, service e schemas estaveis.
