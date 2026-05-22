@@ -1,16 +1,22 @@
 import { useState } from "react";
+import { useLocation, useNavigate } from "react-router";
 import { Field } from "../components/Field";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { createApiClient } from "../services/api-client";
 
 const api = createApiClient();
+type RedirectState = { from?: { pathname?: string; search?: string; hash?: string } };
 
 /** Login page for acquiring a demo JWT. */
 export default function LoginPage() {
-  const [email, setEmail] = useState("admin@example.com");
-  const [password, setPassword] = useState("strong-password");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("super@admin.app");
+  const [password, setPassword] = useState("123456");
   const [message, setMessage] = useState("");
+  const state = location.state as RedirectState | null;
+  const from = `${state?.from?.pathname ?? "/"}${state?.from?.search ?? ""}${state?.from?.hash ?? ""}`;
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -18,6 +24,7 @@ export default function LoginPage() {
       const session = await api.post<{ accessToken: string }>("/auth/login", { email, password });
       localStorage.setItem("accessToken", session.accessToken);
       setMessage("Authenticated. You can manage users now.");
+      navigate(from, { replace: true });
     } catch {
       setMessage("Authentication failed.");
     }

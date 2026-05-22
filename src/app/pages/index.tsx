@@ -29,9 +29,6 @@ export default function DashboardPage() {
         </p>
       </CardContent>
       <CardFooter className="actions">
-        <Button asChild>
-          <Link to="/login">Login</Link>
-        </Button>
         <Button asChild variant="secondary">
           <Link to="/users">Manage users</Link>
         </Button>
