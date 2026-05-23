@@ -174,7 +174,7 @@ export default function OrdersPage() {
       </div>
 
       <Dialog open={isFormOpen} onOpenChange={(open) => (open ? openCreateForm() : closeCreateForm())}>
-        <DialogContent>
+        <DialogContent className="max-h-[calc(100svh-2rem)] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Novo pedido</DialogTitle>
             <DialogDescription>Adicione produtos com estoque disponivel.</DialogDescription>
@@ -216,7 +216,12 @@ export default function OrdersPage() {
                       <p className="text-sm text-destructive" role="alert">{formErrors.items[index]?.quantity}</p>
                     )}
                   </div>
-                  <Button type="button" variant="ghost" onClick={() => removeItem(index)}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="justify-self-end md:col-span-2"
+                    onClick={() => removeItem(index)}
+                  >
                     Remover
                   </Button>
                 </div>

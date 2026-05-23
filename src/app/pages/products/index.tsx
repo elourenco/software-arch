@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Field } from "../../components/Field";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -127,13 +127,13 @@ export default function ProductsPage() {
   return (
     <Card>
       <CardHeader>
-        <div className="toolbar">
-          <CardTitle>Produtos</CardTitle>
+        <CardTitle>Produtos</CardTitle>
+        <CardAction>
           <Button type="button" onClick={openCreateForm}>
             <Plus data-icon="inline-start" />
             Criar produto
           </Button>
-        </div>
+        </CardAction>
       </CardHeader>
       <CardContent className="page-stack">
         {listError && <p className="text-sm text-destructive" role="alert">{listError}</p>}

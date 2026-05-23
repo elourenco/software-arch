@@ -209,7 +209,11 @@
   }
 
   .order-item-row {
-    @apply grid gap-3 rounded-md border p-3 md:grid-cols-[minmax(0,1fr)_8rem_auto] md:items-end;
+    @apply grid gap-3 rounded-md border p-3 md:grid-cols-[minmax(0,1fr)_8rem] md:items-end;
+  }
+
+  .order-item-row .field {
+    @apply min-w-0;
   }
 
   .table-actions {
