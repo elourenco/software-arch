@@ -38,8 +38,19 @@ describe("users HTTP routes", () => {
 
     expect(create.status).toBe(201);
     expect(created).not.toHaveProperty("passwordHash");
-    expect((await app.handle(new Request("http://localhost/api/users/count", { headers: auth }))).status).toBe(200);
-    expect((await app.handle(new Request("http://localhost/api/users/search?name=knu", { headers: auth }))).status).toBe(200);
+    const list = await app.handle(new Request("http://localhost/api/users", { headers: auth }));
+    const listedUsers = await list.json() as Array<{ email: string }>;
+    const count = await app.handle(new Request("http://localhost/api/users/count", { headers: auth }));
+    const searchSuperAdmin = await app.handle(new Request("http://localhost/api/users/search?name=Super", { headers: auth }));
+    const searchCurrentUser = await app.handle(new Request("http://localhost/api/users/search?name=Admin", { headers: auth }));
+    const searchKnuth = await app.handle(new Request("http://localhost/api/users/search?name=knu", { headers: auth }));
+
+    expect(list.status).toBe(200);
+    expect(listedUsers.map((user) => user.email)).toEqual(["donald@example.com"]);
+    expect(await count.json()).toEqual({ count: 1 });
+    expect(await searchSuperAdmin.json()).toEqual([]);
+    expect(await searchCurrentUser.json()).toEqual([]);
+    expect(searchKnuth.status).toBe(200);
     expect((await app.handle(new Request(`http://localhost/api/users/${created.id}`, { headers: auth }))).status).toBe(200);
     expect((await app.handle(new Request(`http://localhost/api/users/${created.id}`, {
       method: "PUT",

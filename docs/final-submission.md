@@ -58,6 +58,10 @@ password: 123456
 role: admin
 ```
 
+Essa credencial e apenas operacional. Ela permite login administrativo inicial,
+mas nao aparece nas colecoes publicas do dominio `User`: listagem, count e busca
+por nome. As mesmas colecoes tambem excluem o proprio usuario autenticado.
+
 Validacao tecnica:
 
 ```bash
@@ -80,7 +84,7 @@ Depois do login, use `Authorization: Bearer <accessToken>` para:
 
 - `GET /api/users`
 - `GET /api/users/count`
-- `GET /api/users/search?name=Super`
+- `GET /api/users/search?name=<nome-de-usuario-criado>`
 - `GET /api/users/:id`
 - `POST /api/users`
 - `PUT /api/users/:id`

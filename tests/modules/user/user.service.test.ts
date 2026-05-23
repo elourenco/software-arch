@@ -33,7 +33,13 @@ describe("UserService", () => {
   });
 
   test("supports CRUD operations with domain errors", async () => {
-    const initialCount = await service.countUsers();
+    const currentUser = await service.createUser({
+      name: "Session User",
+      email: "session@example.com",
+      password: "strong-password",
+      role: "user",
+    });
+    const initialCount = await service.countUsers(currentUser.id);
     const created = await service.createUser({
       name: "Margaret Hamilton",
       email: "margaret@example.com",
@@ -41,8 +47,9 @@ describe("UserService", () => {
       role: "admin",
     });
 
-    expect(await service.countUsers()).toBe(initialCount + 1);
-    expect(await service.searchUsersByName("ham")).toHaveLength(1);
+    expect(await service.countUsers(currentUser.id)).toBe(initialCount + 1);
+    expect(await service.searchUsersByName("session", currentUser.id)).toEqual([]);
+    expect(await service.searchUsersByName("ham", currentUser.id)).toHaveLength(1);
     expect((await service.updateUser(created.id, { name: "M. Hamilton" })).name).toBe("M. Hamilton");
     await expect(service.createUser({
       name: "Duplicate",

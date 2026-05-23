@@ -12,20 +12,20 @@ export class UserController {
     return this.users.createUser(body);
   }
 
-  list() {
-    return this.users.listUsers();
+  list(currentUserId: string) {
+    return this.users.listUsers(currentUserId);
   }
 
-  async count() {
-    return { count: await this.users.countUsers() };
+  async count(currentUserId: string) {
+    return { count: await this.users.countUsers(currentUserId) };
   }
 
   findById(id: string) {
     return this.users.findUserById(id);
   }
 
-  search(name: string) {
-    return this.users.searchUsersByName(name);
+  search(name: string, currentUserId: string) {
+    return this.users.searchUsersByName(name, currentUserId);
   }
 
   update(id: string, body: UpdateUserInput) {

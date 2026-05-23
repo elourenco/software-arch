@@ -24,12 +24,12 @@ export class UserService {
     return toPublicUser(user);
   }
 
-  async listUsers(): Promise<PublicUser[]> {
-    return this.users.findAll().map(toPublicUser);
+  async listUsers(currentUserId: string): Promise<PublicUser[]> {
+    return this.users.findAll(currentUserId).map(toPublicUser);
   }
 
-  async countUsers(): Promise<number> {
-    return this.users.count();
+  async countUsers(currentUserId: string): Promise<number> {
+    return this.users.count(currentUserId);
   }
 
   async findUserById(id: string): Promise<PublicUser> {
@@ -38,8 +38,8 @@ export class UserService {
     return toPublicUser(user);
   }
 
-  async searchUsersByName(name: string): Promise<PublicUser[]> {
-    return this.users.findByName(name).map(toPublicUser);
+  async searchUsersByName(name: string, currentUserId: string): Promise<PublicUser[]> {
+    return this.users.findByName(name, currentUserId).map(toPublicUser);
   }
 
   async updateUser(id: string, input: UpdateUserInput): Promise<PublicUser> {

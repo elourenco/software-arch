@@ -22,6 +22,11 @@ password: 123456
 role: admin
 ```
 
+Essa conta e operacional: autentica no modulo `Auth`, mas nao entra nas
+colecoes publicas do dominio `User` (`GET /api/users`, `/api/users/count` e
+`GET /api/users/search`). Essas colecoes tambem excluem o proprio usuario
+autenticado na request.
+
 Rotas autenticadas:
 
 ```txt
@@ -56,6 +61,10 @@ Payload de criacao:
 ```
 
 Respostas publicas nunca incluem `passwordHash`.
+
+As leituras de colecao retornam outros usuarios de dominio. O seed
+`super@admin.app` fica reservado para bootstrap administrativo e continua
+acessivel apenas pelos fluxos de autenticacao que consultam email diretamente.
 
 `POST /api/auth/login` aceita qualquer senha nao vazia para permitir verificacao de credenciais existentes. A politica de senha forte permanece nas operacoes que criam ou atualizam senha.
 

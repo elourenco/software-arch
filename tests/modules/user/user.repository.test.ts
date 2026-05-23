@@ -37,6 +37,15 @@ describe("UserRepository", () => {
     expect(repository.findByName("love")).toHaveLength(1);
   });
 
+  test("excludes the bootstrap super admin from public collection queries", () => {
+    const admin = repository.findByEmail("super@admin.app");
+
+    expect(admin?.role).toBe("admin");
+    expect(repository.count()).toBe(0);
+    expect(repository.findAll()).toEqual([]);
+    expect(repository.findByName("Super")).toEqual([]);
+  });
+
   test("updates, deletes, and converts duplicate emails to domain errors", () => {
     const user = repository.create({
       id: "user-1",
@@ -69,7 +78,7 @@ describe("UserRepository", () => {
     runMigrations(db);
 
     expect(repository.findByEmail("super@admin.app")?.id).toBe(admin?.id);
-    expect(repository.findByName("Super Admin")).toHaveLength(1);
+    expect(repository.findByName("Super Admin")).toEqual([]);
   });
 
   test("does not overwrite an existing admin email when the seed migration runs", () => {

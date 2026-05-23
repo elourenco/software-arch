@@ -3,6 +3,8 @@ import { emailAlreadyExists } from "./user.errors";
 import { mapUserRow, type UserRow } from "./user.mapper";
 import type { User, UpdateUserData } from "./user.model";
 
+const BOOTSTRAP_SUPER_ADMIN_EMAIL = "super@admin.app";
+
 /** Persists users through Bun SQLite prepared statements. */
 export class UserRepository {
   constructor(private readonly db: Database) {}
@@ -20,12 +22,17 @@ export class UserRepository {
     }
   }
 
-  findAll(): User[] {
-    return this.rows("SELECT * FROM users ORDER BY created_at DESC");
+  findAll(excludedUserId = ""): User[] {
+    return this.rows(
+      "SELECT * FROM users WHERE email <> ? AND id <> ? ORDER BY created_at DESC",
+      BOOTSTRAP_SUPER_ADMIN_EMAIL,
+      excludedUserId,
+    );
   }
 
-  count(): number {
-    return Number((this.db.query("SELECT COUNT(*) as count FROM users").get() as { count: number }).count);
+  count(excludedUserId = ""): number {
+    return Number((this.db.query("SELECT COUNT(*) as count FROM users WHERE email <> ? AND id <> ?")
+      .get(BOOTSTRAP_SUPER_ADMIN_EMAIL, excludedUserId) as { count: number }).count);
   }
 
   findById(id: string): User | null {
@@ -36,8 +43,13 @@ export class UserRepository {
     return this.row("SELECT * FROM users WHERE email = ?", email.toLowerCase());
   }
 
-  findByName(name: string): User[] {
-    return this.rows("SELECT * FROM users WHERE lower(name) LIKE lower(?) ORDER BY name", `%${name}%`);
+  findByName(name: string, excludedUserId = ""): User[] {
+    return this.rows(
+      "SELECT * FROM users WHERE lower(name) LIKE lower(?) AND email <> ? AND id <> ? ORDER BY name",
+      `%${name}%`,
+      BOOTSTRAP_SUPER_ADMIN_EMAIL,
+      excludedUserId,
+    );
   }
 
   update(id: string, data: UpdateUserData & { updatedAt: string }): User | null {
