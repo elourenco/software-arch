@@ -24,7 +24,7 @@ describe("openapi documentation routes", () => {
     expect(response.status).toBe(200);
     expect(spec.openapi).toBe("3.0.3");
     const paths = Object.keys(spec.paths);
-    expect(paths).toHaveLength(8);
+    expect(paths).toHaveLength(19);
     expect(paths).toEqual(expect.arrayContaining([
       "/api/health",
       "/api/auth/register",
@@ -34,6 +34,17 @@ describe("openapi documentation routes", () => {
       "/api/users/count",
       "/api/users/search",
       "/api/users/{id}",
+      "/api/products",
+      "/api/products/count",
+      "/api/products/{id}",
+      "/api/orders",
+      "/api/orders/{id}",
+      "/api/orders/{id}/cancel",
+      "/api/admin/orders",
+      "/api/admin/orders/count",
+      "/api/admin/orders/{id}",
+      "/api/admin/orders/{id}/status",
+      "/api/admin/dashboard",
     ]));
   });
 
