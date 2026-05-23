@@ -1,6 +1,6 @@
-# Software Arch API
+# Software Arch
 
-## 1. Resumo Executivo
+![Software Arch - visao arquitetural do projeto](docs/assets/software-arch-hero.png)
 
 ### Introducao do projeto
 
@@ -70,7 +70,7 @@ repository, mapper, errors e model. Tambem explicita como `auth`, `user`,
 `product` e `order` seguem o padrao. A explicacao detalhada fica em
 [`docs/diagrams/mvc-modules.md`](docs/diagrams/mvc-modules.md).
 
-## 2. Analise Tecnica
+## Analise Tecnica
 
 ### Arquitetura em alto nivel
 
@@ -215,7 +215,7 @@ No caminho inverso, o repository devolve modelo interno, service aplica regra de
 negocio, mapper/schema garantem resposta publica e o error handler transforma
 falhas conhecidas em status HTTP consistente.
 
-## 3. Implementacao
+## Implementacao
 
 ### Como rodar
 
@@ -424,7 +424,7 @@ Fluxo recomendado:
 4. Trate erro de API tipado quando o backend devolver erro de dominio.
 5. Cubra comportamento com testes em `tests/app`.
 
-## 4. Trade-offs
+## Trade-offs
 
 ### Bun + Elysia
 
@@ -485,7 +485,7 @@ Evite ou reavalie quando:
 - Observabilidade, tracing distribuido e metricas por rota forem requisitos de
   producao desde o primeiro release.
 
-## 6. Escalabilidade
+## Escalabilidade
 
 ### Gargalos esperados
 
