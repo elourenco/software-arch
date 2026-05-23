@@ -28,9 +28,22 @@ export function AuthenticatedLayout() {
           <NavLink className={navClassName} end to="/">
             Dashboard
           </NavLink>
-          <NavLink className={navClassName} to="/users">
-            Users
+          <NavLink className={navClassName} to="/orders">
+            Pedidos
           </NavLink>
+          {currentUser.role === "admin" && (
+            <>
+              <NavLink className={navClassName} to="/users">
+                Usuarios
+              </NavLink>
+              <NavLink className={navClassName} to="/products">
+                Produtos
+              </NavLink>
+              <NavLink className={navClassName} to="/admin/orders">
+                Pedidos admin
+              </NavLink>
+            </>
+          )}
         </nav>
         <footer className="sidebar-footer">
           <DropdownMenu>

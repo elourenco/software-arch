@@ -175,4 +175,56 @@
   .field {
     @apply grid min-w-56 gap-2;
   }
+
+  .page-stack {
+    @apply flex flex-col gap-4;
+  }
+
+  .page-heading {
+    @apply flex flex-col gap-3 md:flex-row md:items-center md:justify-between;
+  }
+
+  .page-heading h1 {
+    @apply text-xl font-semibold;
+  }
+
+  .page-heading p {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .toolbar {
+    @apply flex flex-col gap-3 md:flex-row md:items-center md:justify-between;
+  }
+
+  .metric-grid {
+    @apply grid gap-4 md:grid-cols-3;
+  }
+
+  .metric-value {
+    @apply text-3xl font-semibold;
+  }
+
+  .order-card-grid {
+    @apply grid gap-4 md:grid-cols-2 xl:grid-cols-3;
+  }
+
+  .order-item-row {
+    @apply grid gap-3 rounded-md border p-3 md:grid-cols-[minmax(0,1fr)_8rem_auto] md:items-end;
+  }
+
+  .table-actions {
+    @apply flex justify-end gap-2;
+  }
+
+  .detail-grid {
+    @apply grid gap-4 md:grid-cols-2;
+  }
+
+  .detail-grid > div {
+    @apply flex flex-col gap-1 rounded-md border p-3;
+  }
+
+  .detail-label {
+    @apply text-xs font-medium uppercase text-muted-foreground;
+  }
 }

@@ -8,6 +8,11 @@ describe("appRoutes", () => {
     ["/login", "login"],
     ["/users", "users"],
     ["/users/123", "user-detail"],
+    ["/products", "products"],
+    ["/orders", "orders"],
+    ["/orders/123", "order-detail"],
+    ["/admin/orders", "admin-orders"],
+    ["/admin/orders/123", "admin-order-detail"],
   ])("matches %s to %s", (pathname, routeId) => {
     const matches = matchRoutes(appRoutes, pathname);
 

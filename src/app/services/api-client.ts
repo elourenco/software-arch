@@ -6,6 +6,54 @@ export type ApiClientOptions = {
 
 type ApiErrorPayload = { error?: { code?: string; message?: string } };
 
+export type Product = {
+  id: string;
+  sku: string;
+  name: string;
+  quantity: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ProductInput = {
+  sku: string;
+  name: string;
+  quantity: number;
+};
+
+export type OrderStatus = "em_andamento" | "concluido" | "cancelado";
+export type AdminOrderStatus = Exclude<OrderStatus, "cancelado">;
+
+export type OrderItem = {
+  id: string;
+  orderId: string;
+  productId: string;
+  skuSnapshot: string;
+  productNameSnapshot: string;
+  quantity: number;
+  createdAt: string;
+};
+
+export type Order = {
+  id: string;
+  userId: string;
+  status: OrderStatus;
+  createdAt: string;
+  updatedAt: string;
+  user?: { id: string; name: string; email: string };
+  items: OrderItem[];
+};
+
+export type CreateOrderInput = {
+  items: Array<{ productId: string; quantity: number }>;
+};
+
+export type AdminDashboard = {
+  usersCount: number;
+  ordersCount: number;
+  productsCount: number;
+};
+
 export class ApiClientError extends Error {
   constructor(
     public readonly status: number,
@@ -49,7 +97,23 @@ export function createApiClient(options: ApiClientOptions = {}) {
     get: <T>(path: string) => request<T>("GET", path),
     post: <T>(path: string, body: unknown) => request<T>("POST", path, body),
     put: <T>(path: string, body: unknown) => request<T>("PUT", path, body),
+    patch: <T>(path: string, body?: unknown) => request<T>("PATCH", path, body),
     delete: <T>(path: string) => request<T>("DELETE", path),
+    listProducts: () => request<Product[]>("GET", "/products"),
+    countProducts: () => request<{ count: number }>("GET", "/products/count"),
+    createProduct: (body: ProductInput) => request<Product>("POST", "/products", body),
+    updateProduct: (id: string, body: Partial<ProductInput>) => request<Product>("PUT", `/products/${id}`, body),
+    deleteProduct: (id: string) => request<void>("DELETE", `/products/${id}`),
+    listOrders: () => request<Order[]>("GET", "/orders"),
+    getOrder: (id: string) => request<Order>("GET", `/orders/${id}`),
+    createOrder: (body: CreateOrderInput) => request<Order>("POST", "/orders", body),
+    cancelOrder: (id: string) => request<Order>("PATCH", `/orders/${id}/cancel`),
+    listAdminOrders: () => request<Order[]>("GET", "/admin/orders"),
+    getAdminOrder: (id: string) => request<Order>("GET", `/admin/orders/${id}`),
+    getAdminDashboard: () => request<AdminDashboard>("GET", "/admin/dashboard"),
+    updateAdminOrderStatus: (id: string, status: AdminOrderStatus) => (
+      request<Order>("PATCH", `/admin/orders/${id}/status`, { status })
+    ),
   };
 }
 
