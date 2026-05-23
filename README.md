@@ -35,6 +35,40 @@ Entregaveis principais:
 - Diagramas fonte: `docs/diagrams/*.mmd` e `docs/diagrams/drawio/*.drawio`.
 - Diagramas renderizados: `docs/diagrams/exports/*.svg` e
   `docs/diagrams/exports/*.png`.
+- Explicacao detalhada dos diagramas: `docs/diagrams/*.md`.
+
+### Diagramas arquiteturais
+
+Os diagramas abaixo sao renderizados em `PNG` para leitura direta no README. Os
+arquivos `.mmd` continuam como fonte editavel e os `.svg` continuam disponiveis
+para inspecao com zoom.
+
+#### C4 contexto
+
+![Diagrama C4 contexto](docs/diagrams/exports/c4-context.png)
+
+Mostra o sistema no ambiente externo: avaliador, usuario comum, admin, sistemas
+parceiros, browser, runtime Bun, API REST, UI React, OpenAPI e SQLite. A
+explicacao detalhada fica em
+[`docs/diagrams/c4-context.md`](docs/diagrams/c4-context.md).
+
+#### C4 container
+
+![Diagrama C4 container](docs/diagrams/exports/c4-container.png)
+
+Mostra os containers internos do processo Bun: `Bun.serve`, roteadores HTTP,
+frontend React, API Elysia, modulos MVC, auth guard, error handler, OpenAPI e
+SQLite. A explicacao detalhada fica em
+[`docs/diagrams/c4-container.md`](docs/diagrams/c4-container.md).
+
+#### MVC por modulo
+
+![Diagrama MVC por modulo](docs/diagrams/exports/mvc-modules.png)
+
+Mostra o contrato de cada feature module: routes, schema, controller, service,
+repository, mapper, errors e model. Tambem explicita como `auth`, `user`,
+`product` e `order` seguem o padrao. A explicacao detalhada fica em
+[`docs/diagrams/mvc-modules.md`](docs/diagrams/mvc-modules.md).
 
 ## 2. Analise Tecnica
 

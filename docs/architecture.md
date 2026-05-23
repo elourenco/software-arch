@@ -74,9 +74,12 @@ src/
 
 Diagramas:
 
-- C4 contexto: `docs/diagrams/c4-context.mmd`.
-- C4 container: `docs/diagrams/c4-container.mmd`.
-- MVC por modulo: `docs/diagrams/mvc-modules.mmd`.
+- C4 contexto: `docs/diagrams/c4-context.md` e
+  `docs/diagrams/c4-context.mmd`.
+- C4 container: `docs/diagrams/c4-container.md` e
+  `docs/diagrams/c4-container.mmd`.
+- MVC por modulo: `docs/diagrams/mvc-modules.md` e
+  `docs/diagrams/mvc-modules.mmd`.
 - Draw.io: `docs/diagrams/drawio/*.drawio`.
 - Exports renderizados: `docs/diagrams/exports/*.svg` e `docs/diagrams/exports/*.png`.
 

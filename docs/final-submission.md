@@ -30,7 +30,7 @@ transacional, dashboards por role e interface operacional.
 | Service | Atendido | `*.service.ts` por modulo |
 | Repository | Atendido | `*.repository.ts` por modulo |
 | Estrutura de pastas explicada | Atendido | `README.md`, `docs/architecture.md`, `AGENTS.md` |
-| Desenho arquitetural C4/UML/outro | Atendido | `docs/diagrams/*.mmd`, `docs/diagrams/drawio/*.drawio`, `docs/diagrams/exports/*` |
+| Desenho arquitetural C4/UML/outro | Atendido | `docs/diagrams/*.md`, `docs/diagrams/*.mmd`, `docs/diagrams/drawio/*.drawio`, `docs/diagrams/exports/*` |
 | OpenAPI / documentacao de API | Atendido | `/api/openapi`, `/api/openapi/json`, `docs/api.md` |
 | Codigo funcionando | Atendido | `bun test`, `bun run typecheck`, `bun run build` |
 | Persistencia funcionando | Atendido | SQLite via `bun:sqlite`, migrations em `src/api/database/migrate.ts` |
