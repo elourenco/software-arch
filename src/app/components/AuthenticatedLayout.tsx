@@ -78,7 +78,7 @@ export function AuthenticatedLayout() {
           <a className="header-link" href="/api/openapi">OpenAPI</a>
         </header>
         <div className="auth-content">
-          <Outlet />
+          <Outlet context={{ currentUser }} />
         </div>
       </section>
     </main>
