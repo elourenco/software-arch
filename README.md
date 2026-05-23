@@ -8,9 +8,9 @@ Este repositorio implementa uma aplicacao fullstack para o desafio final de
 Arquitetura de Software: uma API REST no padrao MVC que disponibiliza dados de
 um dominio para parceiros de uma empresa de vendas on-line.
 
-O dominio principal e `User`. A aplicacao entrega backend, frontend,
-persistencia, documentacao OpenAPI, diagramas arquiteturais e binario compilado
-em um unico projeto Bun. A escolha foi intencional: manter baixa friccao de
+Os dominios de negocio sao `User`, `Product` e `Order`. A aplicacao entrega
+backend, frontend, persistencia, documentacao OpenAPI, diagramas arquiteturais e
+binario compilado em um unico projeto Bun. A escolha foi intencional: manter baixa friccao de
 execucao, demonstrar arquitetura real e preservar um caminho claro de evolucao
 sem introduzir infraestrutura desnecessaria para o escopo do desafio.
 
@@ -68,12 +68,17 @@ src/
     modules/
       auth/
       user/
+      product/
+      order/
     shared/
   app/
     components/
     entrypoints/
     pages/
-    services/
+      admin/orders/
+      orders/
+      products/
+      services/
     styles/
 tests/
   app/
@@ -279,6 +284,36 @@ Executar um arquivo especifico:
 bun test tests/http/users.routes.test.ts
 ```
 
+### Fluxo de produtos e pedidos
+
+Produto e gerenciado por admin:
+
+```bash
+curl -X POST http://localhost:3000/api/products \
+  -H "authorization: Bearer <accessToken>" \
+  -H "content-type: application/json" \
+  -d '{"sku":"SKU-001","name":"Teclado mecanico","quantity":12}'
+```
+
+Pedido e criado por usuario autenticado com um ou mais itens:
+
+```bash
+curl -X POST http://localhost:3000/api/orders \
+  -H "authorization: Bearer <accessToken>" \
+  -H "content-type: application/json" \
+  -d '{"items":[{"productId":"<product-id>","quantity":2}]}'
+```
+
+Regras principais:
+
+- pedido inicia como `em_andamento`;
+- itens duplicados do mesmo produto sao consolidados;
+- criacao de pedido so efetiva se houver estoque suficiente;
+- criacao e cancelamento alteram estoque em transacao SQLite;
+- usuario cancela apenas pedido proprio em andamento;
+- admin altera status apenas para `em_andamento` ou `concluido`;
+- pedido `cancelado` nao retorna para outro status.
+
 ### Como gerar o binario
 
 O comando correto do projeto e:
@@ -298,15 +333,15 @@ PORT=3131 DATABASE_URL=/tmp/software-arch.db bun run start:binary
 curl http://localhost:3131/api/health
 ```
 
-### Como implementar um novo endpoint em `User`
+### Como implementar um novo endpoint em um modulo
 
 Fluxo recomendado:
 
-1. Atualize ou crie schemas em `src/api/modules/user/user.schema.ts`.
-2. Adicione regra de negocio em `src/api/modules/user/user.service.ts`.
-3. Adicione acesso SQL em `src/api/modules/user/user.repository.ts`.
-4. Exponha a operacao em `src/api/modules/user/user.controller.ts`.
-5. Registre a rota em `src/api/modules/user/user.routes.ts`.
+1. Atualize ou crie schemas em `src/api/modules/<domain>/<domain>.schema.ts`.
+2. Adicione regra de negocio em `src/api/modules/<domain>/<domain>.service.ts`.
+3. Adicione acesso SQL em `src/api/modules/<domain>/<domain>.repository.ts`.
+4. Exponha a operacao em `src/api/modules/<domain>/<domain>.controller.ts`.
+5. Registre a rota em `src/api/modules/<domain>/<domain>.routes.ts`.
 6. Se houver novo payload/resposta publica, garanta mapper seguro em
    `src/api/modules/user/user.mapper.ts`.
 7. Cubra o contrato com testes em `tests/http` e a regra em `tests/modules`.
@@ -317,7 +352,7 @@ HTTP e UI nao replica validacao de backend.
 
 ### Como implementar um novo dominio
 
-Crie um modulo com o mesmo formato do `user`:
+Crie um modulo com o mesmo formato de `user`, `product` e `order`:
 
 ```txt
 src/api/modules/product/
@@ -374,6 +409,8 @@ avaliacao e reduz superficie operacional.
 Remove dependencia externa e deixa SQL visivel. O limite natural e escrita
 concorrente: SQLite e excelente para baixa/media escrita e leitura local rapida,
 mas nao e a escolha certa para varias instancias escrevendo no mesmo banco.
+No fluxo de pedidos, transacoes curtas debitam/devolvem estoque para reduzir
+tempo de lock.
 
 ### MVC por modulo
 
@@ -399,6 +436,7 @@ Use este desenho quando:
 - O objetivo e demonstrar MVC, REST, OpenAPI e persistencia real.
 - O produto e pequeno/medio, ferramenta interna ou API de parceiro com baixa
   concorrencia de escrita.
+- O dominio precisa de catalogo, estoque e pedidos basicos sem pagamento/fiscal.
 - A prioridade e deploy simples, latencia baixa e codigo facil de avaliar.
 - O time quer evoluir por troca de repository/persistencia antes de redesenhar
   toda a aplicacao.
@@ -408,6 +446,7 @@ Evite ou reavalie quando:
 - Houver necessidade real de multiplas instancias escrevendo no mesmo banco.
 - A UI precisar deploy independente da API.
 - O dominio exigir transacoes complexas, auditoria forte ou historico temporal.
+- Estoque exigir ledger completo de movimentacoes ou reserva temporaria.
 - Auth exigir revogacao imediata, refresh tokens, RBAC granular ou SSO.
 - Observabilidade, tracing distribuido e metricas por rota forem requisitos de
   producao desde o primeiro release.
@@ -425,7 +464,8 @@ multi-writer distribuido.
 
 Priorize:
 
-1. Paginacao e limite maximo em `GET /api/users`.
+1. Paginacao e limite maximo em `GET /api/users`, `/api/products`,
+   `/api/orders` e `/api/admin/orders`.
 2. Ordenacao explicita e indices alinhados aos filtros.
 3. Payloads menores e DTOs especificos por caso de uso.
 4. Prepared statements em todo caminho quente.
@@ -436,7 +476,7 @@ Priorize:
 
 Quando volume ou concorrencia justificarem:
 
-- Migrar `UserRepository` para Postgres mantendo service/controller estaveis.
+- Migrar repositories para Postgres mantendo service/controller estaveis.
 - Adicionar paginacao cursor-based para listas grandes.
 - Trocar busca `LIKE` por FTS ou search engine conforme requisito.
 - Introduzir refresh tokens/denylist se revogacao de auth virar requisito.

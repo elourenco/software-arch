@@ -12,7 +12,7 @@ flowchart LR
     server["src/server.ts<br/>Bun.serve entrypoint"]
     frontendRouter["src/routes/frontend-router.ts<br/>HTML routes and UI fallback"]
     apiRouter["src/routes/api-router.ts<br/>delegates /api to Elysia"]
-    reactApp["src/app<br/>React pages and components"]
+    reactApp["src/app<br/>dashboard, users, products, orders"]
     apiClient["src/app/services/api-client.ts<br/>only UI HTTP boundary"]
 
     subgraph apiRuntime["src/api"]
@@ -21,11 +21,13 @@ flowchart LR
       errorHandler["shared error handler<br/>domain errors to HTTP"]
       authModule["modules/auth<br/>register, login, me, JWT"]
       userModule["modules/user<br/>CRUD, count, search"]
+      productModule["modules/product<br/>SKU, name, quantity"]
+      orderModule["modules/order<br/>items, status, stock transaction"]
       authGuard["auth guard<br/>Bearer token validation"]
     end
   end
 
-  sqlite[("SQLite file<br/>bun:sqlite, strict mode, busy_timeout, WAL")]
+  sqlite[("SQLite file<br/>users, products, orders, order_items<br/>WAL, busy_timeout")]
 
   browser -- "GET UI routes" --> server
   server --> frontendRouter
@@ -40,15 +42,21 @@ flowchart LR
   apiApp --> errorHandler
   apiApp --> authModule
   apiApp --> userModule
+  apiApp --> productModule
+  apiApp --> orderModule
   userModule --> authGuard
+  productModule --> authGuard
+  orderModule --> authGuard
   authGuard --> authModule
   authModule -- "creates and authenticates users" --> userModule
   userModule -- "prepared SQL" --> sqlite
+  productModule -- "prepared SQL" --> sqlite
+  orderModule -- "transactional stock writes" --> sqlite
 
   class browser client
   class server,reactApp runtime
   class frontendRouter,apiRouter,apiClient boundary
-  class apiApp,authModule,userModule,authGuard module
+  class apiApp,authModule,userModule,productModule,orderModule,authGuard module
   class sqlite data
   class openapi,errorHandler concern
   style bunRuntime fill:#f8fafc,stroke:#334155,color:#0f172a

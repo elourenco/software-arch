@@ -6,26 +6,30 @@ flowchart TB
   classDef docs fill:#fefce8,stroke:#a16207,color:#422006
 
   evaluator["Partner / Evaluator<br/>validates challenge and explores data"]
+  user["Normal User<br/>creates and tracks orders"]
+  admin["Admin User<br/>manages products and order status"]
   partnerSystem["Partner System<br/>optional direct REST integration"]
   browser["Web Browser<br/>runs the React UI"]
 
-  subgraph softwareArch["Software Arch API<br/>single Bun runtime"]
-    ui["React UI<br/>auth and user management pages"]
-    api["REST API<br/>Elysia controllers and Zod contracts"]
+  subgraph softwareArch["Software Arch<br/>single Bun runtime"]
+    ui["React UI<br/>users, products, orders and dashboards"]
+    api["REST API<br/>Auth, User, Product and Order MVC modules"]
     openapi["OpenAPI Documentation<br/>/api/openapi and /api/openapi/json"]
   end
 
-  db[("SQLite Database<br/>bun:sqlite, migrations, WAL")]
+  db[("SQLite Database<br/>users, products, orders, order_items")]
 
   evaluator -- "uses" --> browser
+  user -- "uses" --> browser
+  admin -- "uses" --> browser
   evaluator -- "tests REST contract" --> api
   partnerSystem -- "Bearer token + JSON over HTTP" --> api
   browser -- "serves UI routes" --> ui
   ui -- "fetch /api through api-client.ts" --> api
-  api -- "read/write users" --> db
+  api -- "read/write users, products and orders" --> db
   api -- "publishes schema" --> openapi
 
-  class evaluator,partnerSystem actor
+  class evaluator,user,admin,partnerSystem actor
   class browser,ui app
   class api api
   class db data

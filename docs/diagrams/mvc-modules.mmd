@@ -18,12 +18,14 @@ flowchart TD
 
   authGuard["shared auth guard<br/>Bearer token to request user"]
   errorHandler["shared error handler<br/>AppError to stable HTTP response"]
-  database[("SQLite<br/>single-writer, WAL, busy_timeout")]
+  database[("SQLite<br/>users, products, orders, order_items")]
   response["HTTP response<br/>validated public payload"]
 
   subgraph implementedModules["Implemented modules"]
     auth["auth<br/>register, login, me, JWT"]
     user["user<br/>CRUD, count, list, search"]
+    product["product<br/>SKU, name, stock quantity"]
+    order["order<br/>multi-item order, status, stock transaction"]
   end
 
   request --> route
@@ -47,12 +49,15 @@ flowchart TD
 
   authGuard --> auth
   auth -- "delegates user lookup and creation" --> user
+  order -- "reads product stock and writes order_items" --> product
+  order -- "owns status and cancel workflow" --> route
+  product -. "follows pattern" .-> route
   user -. "follows pattern" .-> route
   auth -. "uses controller/service/schema pattern" .-> route
 
   class request,response boundary
   class route,schema,controller,authGuard,errorHandler boundary
-  class service,model,auth,user domain
+  class service,model,auth,user,product,order domain
   class repository,mapper,database data
   class domainErrors error
   style modulePattern fill:#f8fafc,stroke:#334155,color:#0f172a
